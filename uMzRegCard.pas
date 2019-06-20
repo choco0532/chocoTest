@@ -53,9 +53,7 @@ type
     procedure btnExitClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
   private
-    
   public
-    
   end;
 
 var
@@ -71,8 +69,9 @@ implementation
 {$R *.dfm}
 var
   strSQL, strCardNo, strCardID, strIDNO: string;
-  intType: Integer;  
-  intSex:Integer;
+  intType: Integer;
+  intSex: Integer;
+
 function IsValidPID(const pAPID: string; var pBirthDate: string): string;
 
   function GetVerifyBit(sIdentityNum: string): Char;
@@ -117,9 +116,9 @@ var
   iCentury: Integer;
   iMonth: Integer;
   iDate: Integer;
-  CRCFact: string; 
-  CRCTh: string; 
-  FebDayAmt: Byte; 
+  CRCFact: string;
+  CRCTh: string;
+  FebDayAmt: Byte;
 begin
   L := Length(pAPID);
   if (L in [15, 18]) = False then
@@ -224,7 +223,8 @@ begin
   try
     with FMzRegCard.spGetNextVoucher do
     begin
-      if Active then Close;
+      if Active then
+        Close;
       Parameters.ParamByName('@iFlag').Value := pVoucherType;
       Parameters.ParamByName('@bMustSeria').Value := pMustSerail;
       ExecProc();
@@ -257,19 +257,19 @@ var
   DataServerName, DataBaseName, LoginDBUserID, LoginDBPassWord, strConn: string;
   showSearchText: Integer;
 begin
-  
+
   IniFile := TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'ini\MzDoctor.ini');
   DataServerName := IniFile.ReadString('ADOConn', 'DataSource', '');
   DataBaseName := IniFile.ReadString('ADOConn', 'DataBaseName', '');
   LoginDBUserID := IniFile.ReadString('ADOConn', 'UserID', '');
   LoginDBPassWord := IniFile.ReadString('ADOConn', 'Password', '');
-  
+
   strConn := 'Provider=SQLOLEDB.1;Data Source=' + DataServerName + ';Initial Catalog=' + DataBaseName + ';User ID=' + LoginDBUserID + ';Password=' + LoginDBPassWord + ';Persist Security Info=True';
 
   adoConn.Connected := False;
   adoConn.ConnectionString := strConn;
   adoConn.Connected := True;
-  
+
   edtCardNo.Text := strCardNo;
   edtIDNO.Text := strIDNO;
   if intType = 0 then
@@ -278,7 +278,7 @@ begin
     lblTitle.Caption := '医保卡快速注册';
   if intType = 4 then
     lblTitle.Caption := '诊疗卡信息修改';
-  
+
 end;
 
 procedure TFMzRegCard.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -298,17 +298,17 @@ begin
 
   intSex := 1;
   case intType of
-    0: 
+    0:
       begin
         btnSave.Caption := '保存';
       end;
-    1: 
+    1:
       begin
         btnSave.Caption := '保存';
         edtEncryptCardNo.Text := strCardNo;
         edtCardNo.Text := '';
       end;
-    4: 
+    4:
       begin
         btnSave.Caption := '修改';
         strSQL := 'select * from tCardInfo where CardStatus=1 and (CardNo=''' + strCardNo + ''' or EncryptCardNo=''' + strCardNo + ''' )';
@@ -357,12 +357,12 @@ procedure TFMzRegCard.btnSaveClick(Sender: TObject);
 var
   strName, strTele, strAddress, strIDNO: string;
   strSQLMain, strSQLDetail: string;
-  strNewCardID,strNewCardNO:string;
-  IDMessage,IDBirthDate:string;
-  strSex:string;
-  intSex:Integer;
+  strNewCardID, strNewCardNO: string;
+  IDMessage, IDBirthDate: string;
+  strSex: string;
+  intSex: Integer;
 begin
-  
+
   IDMessage := IsValidPID(edtIDNo.Text, IDBirthDate);
   if (IDMessage <> '') then
   begin
@@ -372,16 +372,18 @@ begin
     Exit;
   end;
   intSex := 1;
-  if Trim(IDBirthDate)<>'' then
+  if Trim(IDBirthDate) <> '' then
   begin
     dtpBirthday.Date := StrToDate(IDBirthDate);
-    strSex := Copy(edtIDNo.Text,17,1);
-    if strSex='' then strSex := '1';
+    strSex := Copy(edtIDNo.Text, 17, 1);
+    if strSex = '' then
+      strSex := '1';
     intSex := StrToInt(strSex);
-    rb1.Checked := intSex mod 2=1;
-    rb2.Checked := intSex mod 2=0;
+    rb1.Checked := intSex mod 2 = 1;
+    rb2.Checked := intSex mod 2 = 0;
     intSex := intSex mod 2;
-    if intSex=0 then intSex := 2;
+    if intSex = 0 then
+      intSex := 2;
   end;
 
   if edtName.Text <> edtName.Hint then
@@ -400,8 +402,8 @@ begin
     strIDNO := Trim(edtIDNO.Text)
   else
     strIDNO := '';
-  
-  if intType = 4 then 
+
+  if intType = 4 then
   begin
     if (strName <> '') then
     begin
@@ -433,7 +435,7 @@ begin
       end;
     end;
   end
-  else   
+  else
   begin
     strSQL := 'select * from tCardinfo where 1=2';
     with qryCard do
@@ -442,13 +444,20 @@ begin
       SQL.Clear;
       SQL.Add(strSQL);
       Open;
-      if edtName.Text <> edtName.Hint then strName := Trim(edtName.Text) else  strName := '';
-      strNewCardID :=GetNextVoucher(10);
-      if Trim(edtCardNo.Text) <> '' then strNewCardNO := Trim(edtCardNo.Text) else strNewCardNO := strNewCardID;
+      if edtName.Text <> edtName.Hint then
+        strName := Trim(edtName.Text)
+      else
+        strName := '';
+      strNewCardID := GetNextVoucher(10);
+      if Trim(edtCardNo.Text) <> '' then
+        strNewCardNO := Trim(edtCardNo.Text)
+      else
+        strNewCardNO := strNewCardID;
       Insert;
       FieldByName('cardid').AsString := strNewCardID;
       FieldByName('cardNO').AsString := strNewCardNO;
-      if Trim(edtEncryptCardNo.Text)<>'' then FieldByName('EncryptCardNo').AsString := Trim(edtEncryptCardNo.Text);
+      if Trim(edtEncryptCardNo.Text) <> '' then
+        FieldByName('EncryptCardNo').AsString := Trim(edtEncryptCardNo.Text);
       FieldByName('Name').AsString := strName;
       FieldByName('CardType').AsInteger := 1;
       FieldByName('lbh').AsInteger := 1;
@@ -474,7 +483,7 @@ begin
       begin
         FieldByName('PersonIDNO').AsString := strIDNO;
         FieldByName('Csrq').AsDateTime := dtpBirthday.Date;
-      end;  
+      end;
       Post;
     end;
   end;
@@ -483,5 +492,4 @@ begin
 end;
 
 end.
-
 
